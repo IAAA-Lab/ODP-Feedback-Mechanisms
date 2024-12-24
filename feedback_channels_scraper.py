@@ -4,10 +4,10 @@ import re
 import requests
 from bs4 import BeautifulSoup
 
-# Function to scrape feedback channels from a URL
+
 def scrape_feedback_channels(url):
     try:
-        response = requests.get(f"http://{url}", timeout=10)  # Adding http:// to avoid issues with incomplete URLs
+        response = requests.get(f"http://{url}", timeout=10)  
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
 
@@ -19,19 +19,19 @@ def scrape_feedback_channels(url):
             "Like/Rate/Fav": 0
         }
 
-        # 1. Detect Email Addresses
+       
         email_pattern = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b')
         if email_pattern.search(response.text):
             feedback_channels["Email"] = 1
 
-        # 2. Detect Feedback Forms
+       
         forms = soup.find_all('form')
         for form in forms:
             if any(keyword in form.get_text().lower() for keyword in ['feedback', 'contact']):
                 feedback_channels["Feedback Form"] = 1
                 break
 
-        # 3. Detect Social Media Links
+       
         social_media_domains = ['twitter.com', 'facebook.com', 'linkedin.com', 'instagram.com']
         links = soup.find_all('a', href=True)
         for link in links:
@@ -39,13 +39,13 @@ def scrape_feedback_channels(url):
                 feedback_channels["Social Media"] = 1
                 break
 
-        # 4. Detect Discussion Forums
+        
         for link in links:
             if any(keyword in link['href'].lower() for keyword in ['forum', 'discussion', 'community']):
                 feedback_channels["Discussion Forum"] = 1
                 break
 
-        # 5. Detect Like/Rate/Fav Buttons
+        
         buttons = soup.find_all(['button', 'a'])
         for button in buttons:
             if any(keyword in button.get_text().lower() for keyword in ['like', 'rate', 'favorite']):
@@ -58,7 +58,7 @@ def scrape_feedback_channels(url):
         print(f"Error fetching URL {url}: {e}")
         return None
 
-# Main script to read URLs from Excel and scrape information
+
 def main():
     # Load Excel file
     file_path = "open_data_portals.xlsx"  # Replace with the path to your Excel file
@@ -82,7 +82,7 @@ def main():
                 "Total Feedback Channels": total_channels
             })
 
-    # Save the results to a new Excel file
+    
     results_df = pd.DataFrame(results)
     results_df.to_excel("feedback_channels_summary.xlsx", index=False)
     print("Scraping complete! Results saved to 'feedback_channels_summary.xlsx'.")
